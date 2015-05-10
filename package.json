@@ -1,0 +1,15 @@
+{
+  "name": "vine2gif",
+  "version": "1.0.0",
+  "description": "converts mp4 to anmated gif",
+  "main": "mp42gif",
+  "scripts": {
+    "test": "npm test"
+  },
+  "keywords": [
+    "vine",
+    "gif"
+  ],
+  "author": "Eric Nelson",
+  "license": "ISC"
+}

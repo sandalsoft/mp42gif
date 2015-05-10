@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+var getDimensions = require('get-video-dimensions');
+var argv = require('minimist')(process.argv.slice(2));
+var exec = require('child_process').exec;
+var gifsicle = require('gifsicle').path;
+var sanitize = require('sanitize-filename')
+var replaceExt = require('replace-ext');
+
+// var inputFilename = argv.i.replace(/ /g, '\\ ')
+// var outputFilename = argv.o.replace(/ /g, '\\ ')
+MAX_WIDTH = 800
+var delay = 8
+var optimize = 7
+var rotate = ''
+console.log('argv: ' + JSON.stringify(argv));
+inputFilename = argv._[0]
+outputFilename = replaceExt(inputFilename, '.gif')
+
+if (argv.d) {
+  delay = argv.d
+}
+
+if (argv.op) {
+  optimize = argv.op
+}
+
+if (argv.rotate) {
+  rotate = '-vf \"hflip,vflip\"'
+}
+
+console.log('Converting ' + inputFilename)
+
+getDimensions(inputFilename).then(function(dimensions) {
+  width = dimensions.width
+  height = dimensions.height
+  if (width > MAX_WIDTH) {
+    ratio = MAX_WIDTH / width
+  } else {
+    ratio = 1
+  }
+  x = width * ratio
+  y = height * ratio
+
+  var cmd = 'ffmpeg -i ' + inputFilename + ' -s ' + x + 'x' + y +
+       ' -pix_fmt rgb24 ' + rotate + ' -f gif - | gifsicle --optimize=' +
+       optimize + ' --delay=' + delay + ' > ' + outputFilename
+
+  // ffmpeg -i input.mp4  -s 600x600 -pix_fmt rgb24 -f gif - | gifsicle --optimize=7 --delay=4 > ~/Desktop/0fucksgiven.gif
+  console.log('Cmd: ' + cmd);
+
+  exec(cmd, function(error, stdout, stderr) {
+    if (stderr) {
+      console.log('STDERR: ' + stderr);
+    }
+    if (error) {
+      console.log('ERROR: ' + error);
+    }
+    if (stdout) {
+      console.log('STDOUT: ' + stdout);
+    }
+
+    if (!error) {
+      console.log('Success! ');
+    }
+  });
+})
